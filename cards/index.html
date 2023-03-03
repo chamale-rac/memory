@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Bungee+Shade&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap");
+    @import url("https://fonts.googleapis.com/css2?family=Monoton&display=swap");
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+    }
+
+    @keyframes flipIn {
+      0% {
+        transform: rotateY(0deg);
+      }
+      100% {
+        transform: rotateY(180deg);
+      }
+    }
+
+    @keyframes flipOut {
+      0% {
+        transform: rotateY(180deg);
+      }
+      100% {
+        transform: rotateY(0deg);
+      }
+    }
+
+    @keyframes vanish {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const Score = ({ score }) => {
+        return (
+          <div
+            style={{
+              float: "left",
+              color: "black",
+              width: "fit-content",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              fontFamily: "Major Mono Display",
+              fontSize: "32px",
+              backgroundColor: "white",
+              writingMode: "vertical-rl",
+              border: "1px solid black",
+              overflow: "hidden",
+            }}
+          >
+            {score} MOVEMENTS
+          </div>
+        );
+      };
+
+      const Card = ({ card, onClick }) => {
+        return (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "white",
+              cursor: "pointer",
+              perspective: "1000px",
+            }}
+            onClick={() => {
+              onClick();
+            }}
+          >
+            <div
+              style={
+                card.isFlipped
+                  ? {
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                      textAlign: "center",
+                      transition: "transform 0.8s",
+                      transformStyle: "preserve-3d",
+                      animation: "flipIn 250ms ease-in",
+                      animationFillMode: "forwards",
+                    }
+                  : {
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                      textAlign: "center",
+                      transition: "transform 0.8s",
+                      transformStyle: "preserve-3d",
+                      animation: "flipOut 250ms ease-in",
+                    }
+              }
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
+                  width: "100%",
+                  height: "100%",
+                  backfaceVisibility: "hidden",
+                  backgroundColor: "#f5ff02",
+                  color: "black",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  userSelect: "none",
+                  animation: "vanish 2s ease-in",
+                  fontFamily: "Bungee Shade",
+                  fontSize: "70px",
+
+                  border: "1px solid black",
+                }}
+              >
+                ?
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  boxShadow: "0 0 10px rgba(0, 0, 0, 0.2)",
+                  width: "100%",
+                  height: "100%",
+                  backfaceVisibility: "hidden",
+                  backgroundColor: card.color,
+                  color: "black",
+                  transform: "rotateY(180deg)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  userSelect: "none",
+                  animation: "vanish 2s ease-in",
+                  fontFamily: "Bungee Shade",
+                  fontSize: "70px",
+                }}
+              >
+                {card.content}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const CardsGrid = () => {
+        const initialState = [
+          { content: "a", color: "#f15e22" },
+          { content: "b", color: "#a3b3dc" },
+          { content: "c", color: "#fabc27" },
+          { content: "d", color: "#fff6e7" },
+          { content: "e", color: "#7ec682" },
+          { content: "f", color: "#efcee3" },
+          { content: "g", color: "#67a0d6" },
+          { content: "h", color: "#e075ae" },
+        ];
+        const [score, setScore] = React.useState(0);
+        const [cards, setCards] = React.useState([
+          ...initialState,
+          ...initialState,
+        ]);
+
+        const [flippedCard, setFlippedCard] = React.useState(null);
+        const [flippedAmount, setFlippedAmount] = React.useState(0);
+
+        const randomizeCards = () => {
+          const newCards = [...cards].map((item, index) => ({
+            ...item,
+            id: index + 1,
+            isActive: true,
+            isFlipped: false,
+          }));
+          for (let i = newCards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
+          }
+          setCards(newCards);
+        };
+
+        React.useEffect(() => {
+          randomizeCards();
+        }, []);
+
+        const flipCard = (card) => {
+          const newCards = [...cards];
+          const cardIndex = newCards.indexOf(card);
+          newCards[cardIndex].isFlipped = true;
+          setCards(newCards);
+        };
+
+        const unFlipCard = (card) => {
+          const newCards = [...cards];
+          const cardIndex = newCards.indexOf(card);
+          newCards[cardIndex].isFlipped = false;
+          setCards(newCards);
+        };
+
+        const deactivateCard = (card) => {
+          const newCards = [...cards];
+          const cardIndex = newCards.indexOf(card);
+          newCards[cardIndex].isActive = false;
+          setCards(newCards);
+        };
+
+        const cardClicked = (card) => {
+          if (flippedAmount < 2 && !card.isFlipped && card.isActive) {
+            flipCard(card);
+            setFlippedAmount(flippedAmount + 1);
+            setScore(score + 1);
+            if (flippedCard === null) {
+              setFlippedCard(card);
+            } else {
+              if (flippedCard !== null) {
+                if (flippedCard.content === card.content) {
+                  deactivateCard(card);
+                  deactivateCard(flippedCard);
+                  setFlippedAmount(0);
+                  setFlippedCard(null);
+                } else {
+                  setTimeout(() => {
+                    unFlipCard(card);
+                    unFlipCard(flippedCard);
+                    setFlippedAmount(0);
+                    setFlippedCard(null);
+                  }, 800);
+                }
+              }
+            }
+          }
+        };
+
+        return (
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              overflow: "hidden",
+            }}
+          >
+            <Score score={score} />
+            <div
+              style={{
+                float: "left",
+                alignItems: "center",
+                justifyContent: "center",
+                display: "grid",
+                flexGrow: "1",
+                width: "95vw",
+                height: "100vh",
+                gridTemplateRows: "repeat(4, 1fr)",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                overflow: "hidden",
+                background: "lightblue",
+              }}
+              /*
+                              overflow: "hidden",*/
+            >
+              {cards.map((card, index) => (
+                <Card
+                  card={card}
+                  key={index}
+                  onClick={() => cardClicked(card)}
+                />
+              ))}
+              {cards.filter((card) => card.isActive === true).length == 0 ? (
+                <div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "0",
+                      left: "0",
+                      width: "100vw",
+                      height: "100vh",
+                      background: "rgba(0, 0, 0, 0.8)",
+                      display: "grid",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <h1
+                      style={{
+                        textAlign: "center",
+
+                        fontFamily: "Major Mono Display",
+                        fontSize: "50px",
+                        fontWeight: "100",
+
+                        color: "white",
+                        padding: "20px",
+                        borderStyle: "ridge",
+                        borderColor: "white",
+                        borderWidth: "3px 0px 3px 0px",
+                      }}
+                    >
+                      YOU WIN!
+                    </h1>
+                    <button
+                      style={{
+                        fontFamily: "Major Mono Display",
+                        fontSize: "18px",
+                        fontWeight: "100",
+
+                        color: "white",
+                        padding: "20px",
+
+                        borderStyle: "double",
+                        borderColor: "white",
+                        borderWidth: "3px",
+                        backgroundColor: "transparent",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        randomizeCards();
+                        setScore(0);
+                      }}
+                    >
+                      Restart
+                    </button>
+                    <p
+                      style={{
+                        textAlign: "center",
+
+                        fontFamily: "Major Mono Display",
+                        fontSize: "12px",
+                        color: "white",
+                        letterSpacing: "8px",
+                      }}
+                    >
+                      Total movements: {score}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<CardsGrid />);
+    </script>
+  </body>
+</html>

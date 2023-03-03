@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const MessageInputForm = () => {
+        console.log("render MessageInputForm");
+
+        const [inputValue, setInputValue] = React.useState("");
+
+        return (
+          <div>
+            <input
+              value={inputValue}
+              onChange={({ target: { value } }) => setInputValue(value)}
+            />
+            <button
+              onClick={() => {
+                console.log("inputValue", inputValue);
+
+                // fetch
+              }}
+            >
+              SEND
+            </button>
+          </div>
+        );
+      };
+
+      const MessageList = () => {
+        console.log("render MessageList");
+        const [messages, setMessages] = React.useState([]);
+
+        React.useEffect(() => {
+          (async () => {
+            const response = await fetch("http://uvgenios.online/api/messages");
+            const responseJson = await response.json();
+            setMessages(responseJson);
+          })();
+        }, []);
+
+        return (
+          <ul>
+            {messages.map((message) => (
+              <li>
+                {message.user}: {message.text}
+              </li>
+            ))}
+          </ul>
+        );
+      };
+
+      const App = () => {
+        console.log("render App");
+
+        return (
+          <div>
+            <MessageInputForm />
+            <MessageList />
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
